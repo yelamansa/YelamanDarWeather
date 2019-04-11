@@ -49,27 +49,29 @@ class WeatherPresenter {
         timer.schedule(
             object : TimerTask() {
                 override fun run() {
-
-                    disposable =  repository.searchCitiesWeather(city, context)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({
-                            if(it.isSuccessful) {
-                                view?.setCities(it.body().list)
-                            }
-                            else {
-                                view?.setCities(listOf())
-                                view?.showMessage(it.errorBody().string())
-                            }
-                        }, {
-                            view?.setCities(listOf())
-                            view?.showMessage(it.message.toString())
-                        })
-
+                    searchRemoteCitiesWeather(city, context)
                 }
             },
             DELAY
         )
+    }
+
+    fun searchRemoteCitiesWeather(cityName:String, context: Context){
+        disposable =  repository.searchCitiesWeather(cityName, context)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                if(it.isSuccessful) {
+                    view?.setCities(it.body().list)
+                }
+                else {
+                    view?.setCities(listOf())
+                    view?.showMessage(it.errorBody().string())
+                }
+            }, {
+                view?.setCities(listOf())
+                view?.showMessage(it.message.toString())
+            })
     }
 
     fun onDestroy(){
